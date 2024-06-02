@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class RequestShippingAddressSave {
-
+    private String address;
     private String city;
     private String street;
     private String postalCode;

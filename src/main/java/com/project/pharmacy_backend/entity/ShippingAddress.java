@@ -21,6 +21,9 @@ public class ShippingAddress {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long shipping_id;
 
+    @Column(name = "Address")
+    private String address;
+
     @Column(name = "city")
     private String city;
 
