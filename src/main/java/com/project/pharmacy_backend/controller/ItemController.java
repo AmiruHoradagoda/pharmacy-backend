@@ -1,6 +1,7 @@
 package com.project.pharmacy_backend.controller;
 
 import com.project.pharmacy_backend.dto.request.ItemSaveRequestDTO;
+import com.project.pharmacy_backend.dto.response.ItemGetRequestDTO;
 import com.project.pharmacy_backend.service.ItemService;
 import com.project.pharmacy_backend.util.StandardResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/item")
@@ -31,9 +33,10 @@ public class ItemController {
         return new ResponseEntity<StandardResponse>(new StandardResponse(201,"Item is saved",message), HttpStatus.CREATED);
     }
 
-//    @GetMapping(path = "item-list")
-//    public ResponseEntity<StandardResponse> getItems(){
-//        List<>
-//    }
+    @GetMapping(path = "/item-list")
+    public ResponseEntity<StandardResponse> getAllItems(){
+        List<ItemGetRequestDTO> allItems= itemService.getAllItems();
+        return new ResponseEntity<StandardResponse>(new StandardResponse(200,"Item is saved",allItems), HttpStatus.OK);
+    }
     
 }

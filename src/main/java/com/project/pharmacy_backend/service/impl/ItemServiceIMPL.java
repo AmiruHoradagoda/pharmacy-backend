@@ -1,12 +1,15 @@
 package com.project.pharmacy_backend.service.impl;
 
 import com.project.pharmacy_backend.dto.request.ItemSaveRequestDTO;
+import com.project.pharmacy_backend.dto.response.ItemGetRequestDTO;
 import com.project.pharmacy_backend.entity.Item;
 import com.project.pharmacy_backend.repo.ItemRepo;
 import com.project.pharmacy_backend.service.ItemService;
 import com.project.pharmacy_backend.util.mappers.ItemMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class ItemServiceIMPL implements ItemService {
@@ -22,7 +25,6 @@ public class ItemServiceIMPL implements ItemService {
         addItemIfNotExists("Ibuprofen", 180, 0.40, "https://via.placeholder.com/150");
         addItemIfNotExists("Amoxicillin", 120, 1.00, "https://via.placeholder.com/150");
     }
-
     private void addItemIfNotExists(String itemName, int stockQuantity, double itemPrice, String imageUrl) {
         if (!itemRepo.existsByItemName(itemName)) {
             Item item = new Item();
@@ -41,4 +43,14 @@ public class ItemServiceIMPL implements ItemService {
         itemRepo.save(item);
         return itemSaveRequestDTO.getItemName() + "Insert Successfully";
     }
+
+
+
+    @Override
+    public List<ItemGetRequestDTO> getAllItems() {
+        List<Item>itemList = itemRepo.findAll();
+        List<ItemGetRequestDTO>itemListDto =itemMapper.itemListToItemListDto(itemList);
+        return itemListDto;
+    }
+
 }
