@@ -1,23 +1,26 @@
 package com.project.pharmacy_backend.controller;
 
-import com.project.pharmacy_backend.dto.CustomerDTO;
-import com.project.pharmacy_backend.service.CustomerService;
-import com.project.pharmacy_backend.util.StandardResponse;
+import com.project.pharmacy_backend.dto.UserDTO;
+import com.project.pharmacy_backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.PostConstruct;
 
 @RestController
 @RequestMapping("api/v1/customer")
 @CrossOrigin
-public class CustomerController {
+public class CustomerController extends UserController<UserDTO>{
     @Autowired
-    public CustomerService customerService;
+    public UserService customerService;
 
-    @PostMapping(path = "/save")
-    public ResponseEntity<StandardResponse> saveCustomer(@RequestBody CustomerDTO customerDTO){
-        String message = customerService.saveCustomer(customerDTO);
-        return new ResponseEntity<StandardResponse>(new StandardResponse(201,"Customer Saved",message), HttpStatus.CREATED);
+    @PostConstruct
+    public void initCustomerRoleAndCustomer(){
+        customerService.initCustomerRoleAndCustomer();
+    }
+
+    @Override
+    protected String saveEntity(UserDTO customerDTO) {
+        return customerService.saveUser(customerDTO);
     }
 }

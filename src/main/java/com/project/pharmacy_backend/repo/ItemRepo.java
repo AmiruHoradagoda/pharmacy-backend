@@ -9,4 +9,5 @@ import org.springframework.stereotype.Repository;
 @EnableJpaRepositories
 
 public interface ItemRepo extends JpaRepository<Item,Long> {
+    boolean existsByItemName(String itemName);
 }

@@ -4,4 +4,5 @@ import com.project.pharmacy_backend.dto.request.ItemSaveRequestDTO;
 
 public interface ItemService {
     String saveItem(ItemSaveRequestDTO itemSaveRequestDTO);
+    void initialItems();
 }

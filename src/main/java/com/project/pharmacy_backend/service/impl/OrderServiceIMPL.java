@@ -22,7 +22,7 @@ public class OrderServiceIMPL implements OrderService {
     private OrderRepo orderRepo;
 
     @Autowired
-    private CustomerRepo customerRepo;
+    private UserRepo customerRepo;
 
     @Autowired
     private ShippingRepo shippingRepo;
@@ -40,7 +40,7 @@ public class OrderServiceIMPL implements OrderService {
     @Transactional
     public String addOrder(RequestOrderSaveDTO requestOrderSaveDTO) {
         // Retrieve customer entity from the repository
-        Customer customer = customerRepo.getById(requestOrderSaveDTO.getCustomer());
+        User customer = customerRepo.getById(requestOrderSaveDTO.getCustomer());
         ShippingAddress shippingAddress = shippingMapper.shippingAddressDtoToShippingEntity(requestOrderSaveDTO.getRequestShippingAddressSave());
         shippingRepo.save(shippingAddress);
 

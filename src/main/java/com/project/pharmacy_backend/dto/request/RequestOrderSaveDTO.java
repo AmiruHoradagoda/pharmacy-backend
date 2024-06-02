@@ -15,7 +15,7 @@ import java.util.List;
 public class RequestOrderSaveDTO {
    
    
-    private Long customer;
+    private String customer;
 
     private Date orderDate;
 

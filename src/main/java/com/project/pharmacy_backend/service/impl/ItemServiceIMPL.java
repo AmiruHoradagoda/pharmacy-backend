@@ -14,6 +14,27 @@ public class ItemServiceIMPL implements ItemService {
     private ItemRepo itemRepo;
     @Autowired
     private ItemMapper itemMapper;
+
+    public void initialItems() {
+        addItemIfNotExists("Panadole", 100, 0.50, "https://via.placeholder.com/150");
+        addItemIfNotExists("Aspirin", 150, 0.30, "https://via.placeholder.com/150");
+        addItemIfNotExists("Tylenol", 200, 0.45, "https://via.placeholder.com/150");
+        addItemIfNotExists("Ibuprofen", 180, 0.40, "https://via.placeholder.com/150");
+        addItemIfNotExists("Amoxicillin", 120, 1.00, "https://via.placeholder.com/150");
+    }
+
+    private void addItemIfNotExists(String itemName, int stockQuantity, double itemPrice, String imageUrl) {
+        if (!itemRepo.existsByItemName(itemName)) {
+            Item item = new Item();
+            item.setItemName(itemName);
+            item.setStockQuantity(stockQuantity);
+            item.setItemPrice(itemPrice);
+            item.setImageUrl(imageUrl);
+            item.setActiveState(true);
+            itemRepo.save(item);
+        }
+    }
+
     @Override
     public String saveItem(ItemSaveRequestDTO itemSaveRequestDTO) {
         Item item = itemMapper.itemDtoToItemEntity(itemSaveRequestDTO);

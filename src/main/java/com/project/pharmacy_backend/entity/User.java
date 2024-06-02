@@ -1,31 +1,25 @@
 package com.project.pharmacy_backend.entity;
 
-import com.vladmihalcea.hibernate.type.json.JsonType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.TypeDef;
-import org.hibernate.annotations.TypeDefs;
 
 import javax.persistence.*;
 import java.util.Set;
 
 @Entity
-@Table(name = "customers")
-@TypeDefs({
-        @TypeDef(name = "json",typeClass = JsonType.class)
-})
+@Table(name = "users")
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class Customer {
-    
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "customer_id", length = 45)
-    private Long customerId;
+public class User {
 
-    @Column(nullable = false, name = "email")
+    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @Column(name = "user_id", length = 45)
+//    private Long userId;
+
+    @Column(nullable = false, unique = true, name = "email")
     private String email;
 
     @Column(nullable = false, name = "first_Name")
@@ -36,6 +30,17 @@ public class Customer {
 
     @Column(nullable = false, name = "phone_Number")
     private String phoneNumber;
+
+    @Column(nullable = false, name = "password")
+    private String password;
+
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> role;
 
     @OneToMany(mappedBy = "customer")
     private Set<Order> orders;

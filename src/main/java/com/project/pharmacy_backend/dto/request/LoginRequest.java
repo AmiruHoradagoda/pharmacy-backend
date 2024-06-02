@@ -7,10 +7,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class ItemSaveRequestDTO {
-    private String itemName;
-    private int stockQuantity;
-    private double itemPrice;
-    private String imageUrl;
-
+public class LoginRequest {
+    private String userEmail;
+    private String userPassword;
 }

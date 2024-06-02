@@ -28,7 +28,7 @@ public class Order {
 
     @ManyToOne
     @JoinColumn(name = "customer_id", nullable = false)
-    private Customer customer;
+    private User customer;
 
     @Column(name = "orderDate", nullable = false)
     private Date orderDate;
@@ -43,7 +43,7 @@ public class Order {
      @JoinColumn(name = "shipping_address_id", referencedColumnName = "shipping_id", nullable = false)
      private ShippingAddress shippingAddress;
 
-    public Order(Customer customer, Date orderDate, double totalAmount,ShippingAddress shippingAddress) {
+    public Order(User customer, Date orderDate, double totalAmount,ShippingAddress shippingAddress) {
         this.customer = customer;
         this.orderDate = orderDate;
         this.totalAmount = totalAmount;
