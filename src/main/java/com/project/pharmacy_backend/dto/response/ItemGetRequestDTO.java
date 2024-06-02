@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class ItemGetRequestDTO {
+    private Long itemId;
     private String itemName;
     private int stockQuantity;
     private double itemPrice;

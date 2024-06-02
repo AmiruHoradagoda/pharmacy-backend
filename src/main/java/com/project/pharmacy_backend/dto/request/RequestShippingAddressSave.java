@@ -11,6 +11,5 @@ import lombok.NoArgsConstructor;
 public class RequestShippingAddressSave {
     private String address;
     private String city;
-    private String street;
     private String postalCode;
 }

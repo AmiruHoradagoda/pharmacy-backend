@@ -28,9 +28,6 @@ public class ShippingAddress {
     private String city;
 
     @Column(nullable = false)
-    private String street;
-
-    @Column(nullable = false)
     private String postalCode;
 
     @OneToOne(mappedBy = "shippingAddress")
