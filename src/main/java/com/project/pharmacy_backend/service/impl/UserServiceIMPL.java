@@ -86,7 +86,7 @@ public class UserServiceIMPL implements UserService {
 
     @Override
     @Transactional
-    public String saveUser(UserDTO userDTO) {
+    public String registerUser(UserDTO userDTO) {
         System.out.println("User first name: " + userDTO.getFirstName());
 
         // Hash the password

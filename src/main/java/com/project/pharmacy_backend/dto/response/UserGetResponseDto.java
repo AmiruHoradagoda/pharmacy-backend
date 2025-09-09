@@ -21,4 +21,6 @@ public class UserGetResponseDto {
     private String lastName;
 
     private String phoneNumber;
+
+    private RoleDto role;
 }

@@ -13,11 +13,10 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.reactive.CorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
-//@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
@@ -32,14 +31,16 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        System.out.println("=== CONFIGURING SECURITY ===");
+
         http.cors().and().csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/api/v1/login/authentication", "/api/v1/customer/save","/api/v1/item/item-list").permitAll()
-                .antMatchers("/swagger-ui.html", "/swagger-resources/**", "/v2/api-docs", "/webjars/**").permitAll() // Permit all users to access Swagger UI
+                .antMatchers("/api/v1/auth/**").permitAll()
+                .antMatchers("/swagger-ui.html", "/swagger-resources/**", "/v2/api-docs", "/webjars/**").permitAll()
                 .antMatchers(HttpHeaders.ALLOW).permitAll()
-                .antMatchers("/api/v1/admin/**").hasRole("Admin") // Permit only admins to access admin endpoints
-                .antMatchers("/api/v1/item/save").hasRole("Admin") // Permit only admins to access item endpoints
-                .antMatchers("/api/v1/customer/**", "/api/v1/order/save").hasRole("Customer") // Permit only customers to access customer and order endpoints
+                .antMatchers("/api/v1/admin/**").hasRole("Admin")
+                .antMatchers("/api/v1/item/save").hasRole("Admin")
+                .antMatchers("/api/v1/customer/**", "/api/v1/order/save").hasRole("Customer")
                 .anyRequest().authenticated()
                 .and()
                 .exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint)
@@ -47,8 +48,9 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
-    }
 
+        System.out.println("=== SECURITY CONFIGURED ===");
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
