@@ -21,22 +21,28 @@ public class ItemController {
     private ItemService itemService;
 
     @PostConstruct
-    public void initialItems(){
+    public void initialItems() {
         itemService.initialItems();
     }
 
 
-    @PostMapping(path="/save")
+    @PostMapping(path = "/save")
 //    @PreAuthorize("hasRole('Admin')")
-    public ResponseEntity<StandardResponse> saveItem(@RequestBody ItemSaveRequestDTO itemSaveRequestDTO){
+    public ResponseEntity<StandardResponse> saveItem(@RequestBody ItemSaveRequestDTO itemSaveRequestDTO) {
         String message = itemService.saveItem(itemSaveRequestDTO);
-        return new ResponseEntity<StandardResponse>(new StandardResponse(201,"Item is saved",message), HttpStatus.CREATED);
+        return new ResponseEntity<StandardResponse>(new StandardResponse(201, "Item is saved", message), HttpStatus.CREATED);
     }
 
     @GetMapping(path = "/item-list")
-    public ResponseEntity<StandardResponse> getAllItems(){
-        List<ItemGetRequestDTO> allItems= itemService.getAllItems();
-        return new ResponseEntity<StandardResponse>(new StandardResponse(200,"Item is saved",allItems), HttpStatus.OK);
+    public ResponseEntity<StandardResponse> getAllItems() {
+        List<ItemGetRequestDTO> allItems = itemService.getAllItems();
+        return new ResponseEntity<StandardResponse>(new StandardResponse(200, "Items are retrieved", allItems), HttpStatus.OK);
     }
-    
+
+    @GetMapping(path = "/by-id/{id}")
+    public ResponseEntity<StandardResponse> getItemById(@PathVariable("id") long itemId) {
+        ItemGetRequestDTO selectedItem = itemService.getItemById(itemId);
+        return new ResponseEntity<StandardResponse>(new StandardResponse(200, "Item " + itemId + " is saved", selectedItem), HttpStatus.OK);
+    }
+
 }

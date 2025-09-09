@@ -10,4 +10,6 @@ public interface ItemService {
     void initialItems();
 
     List<ItemGetRequestDTO> getAllItems();
+
+    ItemGetRequestDTO getItemById(long itemId);
 }

@@ -14,7 +14,9 @@ import java.util.List;
 public interface ItemMapper {
 
 
-    Item itemDtoToItemEntity(ItemSaveRequestDTO itemSaveRequestDTO);
+    Item toItemEntity(ItemSaveRequestDTO itemSaveRequestDTO);
 
-    List<ItemGetRequestDTO> itemListToItemListDto(List<Item> itemList);
+    List<ItemGetRequestDTO> toItemListDto(List<Item> itemList);
+
+    ItemGetRequestDTO toItemGetDto(Item item);
 }
