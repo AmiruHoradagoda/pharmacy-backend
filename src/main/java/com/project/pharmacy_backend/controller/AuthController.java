@@ -5,7 +5,10 @@ import com.project.pharmacy_backend.dto.request.LoginRequest;
 import com.project.pharmacy_backend.dto.response.LoginResponse;
 import com.project.pharmacy_backend.service.JwtService;
 import com.project.pharmacy_backend.service.UserService;
+import com.project.pharmacy_backend.util.StandardResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,8 +43,13 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    protected String registerUser(UserDTO userDTO) {
-        return userService.registerUser(userDTO);
+    protected ResponseEntity<StandardResponse> registerUser(@RequestBody UserDTO userDTO) {
+        System.out.println("=== REGISTER ENDPOINT DEBUG ===");
+        System.out.println("Received request body: " + userDTO);
+        System.out.println("===============================");
+        String message = userService.registerUser(userDTO);
+        return new ResponseEntity<StandardResponse>(new StandardResponse(200, "Registered Successfully", message), HttpStatus.OK);
+
     }
 
 }

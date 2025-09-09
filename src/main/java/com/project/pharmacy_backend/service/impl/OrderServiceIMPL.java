@@ -44,8 +44,8 @@ public class OrderServiceIMPL implements OrderService {
     @Transactional
     public String addOrder(RequestOrderSaveDTO requestOrderSaveDTO) {
         // Retrieve customer entity from the repository
-        User customer = customerRepo.getById(requestOrderSaveDTO.getCustomer());
-        ShippingAddress shippingAddress = shippingMapper.shippingAddressDtoToShippingEntity(requestOrderSaveDTO.getRequestShippingAddressSave());
+        User customer = customerRepo.findByEmail(requestOrderSaveDTO.getCustomer())
+                .orElseThrow(() -> new RuntimeException("Customer not found with email: " + requestOrderSaveDTO.getCustomer()));        ShippingAddress shippingAddress = shippingMapper.shippingAddressDtoToShippingEntity(requestOrderSaveDTO.getRequestShippingAddressSave());
         shippingRepo.save(shippingAddress);
 
         // Create the order entity
