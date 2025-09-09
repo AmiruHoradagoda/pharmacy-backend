@@ -2,9 +2,13 @@ package com.project.pharmacy_backend.service.impl;
 
 import com.project.pharmacy_backend.dto.request.RequestOrderDetailsSave;
 import com.project.pharmacy_backend.dto.request.RequestOrderSaveDTO;
+import com.project.pharmacy_backend.dto.response.OrderGetResponseDto;
+import com.project.pharmacy_backend.dto.response.UserGetResponseDto;
+import com.project.pharmacy_backend.dto.response.pagination.OrderPaginateResponseDto;
 import com.project.pharmacy_backend.entity.*;
 import com.project.pharmacy_backend.repo.*;
 import com.project.pharmacy_backend.service.OrderService;
+import com.project.pharmacy_backend.util.enums.OrderStatus;
 import com.project.pharmacy_backend.util.mappers.ShippingMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -49,6 +53,7 @@ public class OrderServiceIMPL implements OrderService {
         order.setCustomer(customer);
         order.setOrderDate(requestOrderSaveDTO.getOrderDate());
         order.setTotalAmount(requestOrderSaveDTO.getTotalAmount());
+        order.setStatus(OrderStatus.PENDING);
         order.setShippingAddress(shippingAddress);
 
         // Save the order entity first to generate the order ID
@@ -77,5 +82,44 @@ public class OrderServiceIMPL implements OrderService {
 
         return "Order saved successfully with ID: " + order.getOrderId();
     }
+
+    @Override
+    public OrderPaginateResponseDto getAllOrders() {
+        // Retrieve all orders from the repository
+        List<Order> orderList = orderRepo.findAll();
+
+        // Convert Order entities to OrderGetResponseDto
+        List<OrderGetResponseDto> orderGetResponseDtoList = new ArrayList<>();
+
+        for (Order order : orderList) {
+            // Create UserGetResponseDto for customer
+            UserGetResponseDto customerDto = UserGetResponseDto.builder()
+                    .userId(order.getCustomer().getUserId())
+                    .firstName(order.getCustomer().getFirstName())
+                    .lastName(order.getCustomer().getLastName())
+                    .email(order.getCustomer().getEmail())
+                    .phoneNumber(order.getCustomer().getPhoneNumber())
+                    .build();
+
+            // Create OrderGetResponseDto
+            OrderGetResponseDto orderGetResponseDto = OrderGetResponseDto.builder()
+                    .orderId(order.getOrderId())
+                    .customer(customerDto)
+                    .orderDate(order.getOrderDate())
+                    .status(order.getStatus())
+                    .totalAmount(order.getTotalAmount())
+                    .build();
+
+            orderGetResponseDtoList.add(orderGetResponseDto);
+        }
+
+        // Create and return OrderPaginateResponseDto
+        return OrderPaginateResponseDto.builder()
+                .dataList(orderGetResponseDtoList)
+                .dataCount(orderGetResponseDtoList.size())
+                .build();
+    }
+
+
 }
 

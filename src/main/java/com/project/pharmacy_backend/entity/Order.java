@@ -1,5 +1,6 @@
 package com.project.pharmacy_backend.entity;
 
+import com.project.pharmacy_backend.util.enums.OrderStatus;
 import com.vladmihalcea.hibernate.type.json.JsonType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -32,6 +33,11 @@ public class Order {
 
     @Column(name = "orderDate", nullable = false)
     private Date orderDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private OrderStatus status;
+
 
     @Column(name = "totalAmount", nullable = false)
     private double totalAmount;

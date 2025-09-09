@@ -1,16 +1,14 @@
 package com.project.pharmacy_backend.controller;
 
 import com.project.pharmacy_backend.dto.request.RequestOrderSaveDTO;
+import com.project.pharmacy_backend.dto.response.pagination.OrderPaginateResponseDto;
 import com.project.pharmacy_backend.service.OrderService;
 import com.project.pharmacy_backend.util.StandardResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(path = "api/v1/order")
@@ -22,5 +20,11 @@ public class OrderController {
     public ResponseEntity<StandardResponse> saveOrder(@RequestBody RequestOrderSaveDTO requestOrderSaveDTO){
         String message = orderService.addOrder(requestOrderSaveDTO);
         return new ResponseEntity<StandardResponse>(new StandardResponse(201,"Order is Saved",message), HttpStatus.CREATED);
+    }
+
+    @GetMapping("/getAllOrders")
+    public ResponseEntity<StandardResponse> getAllOrders(){
+        OrderPaginateResponseDto dto = orderService.getAllOrders();
+        return new ResponseEntity<StandardResponse>(new StandardResponse(201,"Order is Saved",dto), HttpStatus.CREATED);
     }
 }
