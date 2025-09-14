@@ -14,15 +14,15 @@ import java.util.Optional;
 
 @Repository
 @EnableJpaRepositories
-public interface UserRepo extends JpaRepository<User,String> {
+public interface UserRepo extends JpaRepository<User,Long> {
     // Add this method to find users by email
     Optional<User> findByEmail(String email);
 
     // You might also want these for flexibility
     boolean existsByEmail(String email);
 
-    @Query("SELECT u FROM User u JOIN u.role r WHERE r.roleName = :roleName")
-    Page<User> findAllCustomers(@Param("roleName") String roleName, Pageable pageable);
+    @Query("SELECT u FROM User u JOIN u.role r")
+    Page<User> findAllUsers(Pageable pageable);
 
 
 }

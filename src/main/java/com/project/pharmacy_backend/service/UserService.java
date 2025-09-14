@@ -1,6 +1,7 @@
 package com.project.pharmacy_backend.service;
 
 import com.project.pharmacy_backend.dto.UserDTO;
+import com.project.pharmacy_backend.dto.response.UserGetResponseDto;
 import com.project.pharmacy_backend.dto.response.pagination.UserPaginationResponseDto;
 
 public interface UserService {
@@ -8,5 +9,7 @@ public interface UserService {
     void initCustomerRoleAndCustomer();
     void initAdminRoleAndAdmin();
 
-    UserPaginationResponseDto getAllCustomers(int page, int size, String sortBy, String sortDirection);
+    UserPaginationResponseDto getAllUsers(int page, int size, String sortBy, String sortDirection);
+
+    UserGetResponseDto getUserById(long userId);
 }

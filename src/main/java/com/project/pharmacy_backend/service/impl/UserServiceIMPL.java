@@ -122,7 +122,7 @@ public class UserServiceIMPL implements UserService {
 
 
     @Override
-    public UserPaginationResponseDto getAllCustomers(int page, int size, String sortBy, String sortDirection) {
+    public UserPaginationResponseDto getAllUsers(int page, int size, String sortBy, String sortDirection) {
         Sort.Direction direction = sortDirection.equalsIgnoreCase("desc")
                 ? Sort.Direction.DESC
                 : Sort.Direction.ASC;
@@ -131,7 +131,7 @@ public class UserServiceIMPL implements UserService {
         Pageable pageable = PageRequest.of(page, size, sort);
 
         // Fixed: Use the correct repository method
-        Page<User> userPage = userRepo.findAllCustomers("Customer", pageable);
+        Page<User> userPage = userRepo.findAllUsers(pageable);
 
         // Convert User entities to UserGetResponseDto
         List<UserGetResponseDto> userGetResponseDtoList = new ArrayList<>();
@@ -166,6 +166,35 @@ public class UserServiceIMPL implements UserService {
         return UserPaginationResponseDto.builder()
                 .dataList(userGetResponseDtoList)
                 .dataCount(userPage.getTotalElements())
+                .build();
+    }
+
+    @Override
+    public UserGetResponseDto getUserById(long userId) {
+        // Find user by ID, throw exception if not found
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User with ID " + userId + " not found"));
+
+        // Handle Set<Role> - get the first role or create a combined role representation
+        RoleDto roleDto = null;
+
+        if (user.getRole() != null && !user.getRole().isEmpty()) {
+            // Get the first role from the set
+            Role firstRole = user.getRole().iterator().next();
+            roleDto = RoleDto.builder()
+                    .roleName(firstRole.getRoleName())
+                    .roleDescription(firstRole.getRoleDescription())
+                    .build();
+        }
+
+        // Create and return UserGetResponseDto
+        return UserGetResponseDto.builder()
+                .userId(user.getUserId())
+                .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .phoneNumber(user.getPhoneNumber())
+                .role(roleDto)
                 .build();
     }
 }

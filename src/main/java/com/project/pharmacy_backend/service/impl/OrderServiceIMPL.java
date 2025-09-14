@@ -2,6 +2,8 @@ package com.project.pharmacy_backend.service.impl;
 
 import com.project.pharmacy_backend.dto.request.RequestOrderDetailsSave;
 import com.project.pharmacy_backend.dto.request.RequestOrderSaveDTO;
+import com.project.pharmacy_backend.dto.response.AnnualSalesResponse;
+import com.project.pharmacy_backend.dto.response.MonthlySalesDto;
 import com.project.pharmacy_backend.dto.response.OrderGetResponseDto;
 import com.project.pharmacy_backend.dto.response.UserGetResponseDto;
 import com.project.pharmacy_backend.dto.response.pagination.OrderPaginateResponseDto;
@@ -18,8 +20,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -134,6 +138,93 @@ public class OrderServiceIMPL implements OrderService {
                 .dataList(orderGetResponseDtoList)
                 .dataCount(orderPage.getTotalElements())
                 .build();
+    }
+
+
+    @Override
+    public String changeOrderStatus(Long orderId, OrderStatus status) {
+        try {
+            // Find the order by ID
+            Order order = orderRepo.findById(orderId)
+                    .orElseThrow(() -> new RuntimeException("Order not found with ID: " + orderId));
+
+            // Validate status transition (optional business logic)
+            OrderStatus currentStatus = order.getStatus();
+            if (!isValidStatusTransition(currentStatus, status)) {
+                throw new RuntimeException("Invalid status transition from " + currentStatus + " to " + status);
+            }
+
+            // Update the order status
+            order.setStatus(status);
+
+            // Save the updated order
+            orderRepo.save(order);
+
+            return "Order status updated successfully. Order ID: " + orderId +
+                    ", New Status: " + status;
+
+        } catch (RuntimeException e) {
+            throw e; // Re-throw runtime exceptions
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to update order status: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public OrderGetResponseDto viewOrderById(long orderId) {
+        try {
+            // Find the order by ID
+            Order order = orderRepo.findById(orderId)
+                    .orElseThrow(() -> new RuntimeException("Order not found with ID: " + orderId));
+
+            // Create UserGetResponseDto for customer
+            UserGetResponseDto customerDto = UserGetResponseDto.builder()
+                    .userId(order.getCustomer().getUserId())
+                    .firstName(order.getCustomer().getFirstName())
+                    .lastName(order.getCustomer().getLastName())
+                    .email(order.getCustomer().getEmail())
+                    .phoneNumber(order.getCustomer().getPhoneNumber())
+                    .build();
+
+            // Create and return OrderGetResponseDto
+            return OrderGetResponseDto.builder()
+                    .orderId(order.getOrderId())
+                    .customer(customerDto)
+                    .orderDate(order.getOrderDate())
+                    .status(order.getStatus())
+                    .totalAmount(order.getTotalAmount())
+                    .build();
+
+        } catch (RuntimeException e) {
+            throw e; // Re-throw runtime exceptions
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to retrieve order: " + e.getMessage(), e);
+        }
+    }
+
+    private boolean isValidStatusTransition(OrderStatus currentStatus, OrderStatus newStatus) {
+        // Allow same status (no change)
+        if (currentStatus == newStatus) {
+            return true;
+        }
+
+        // Define valid transitions based on business logic
+        switch (currentStatus) {
+            case PENDING:
+                // From PENDING, can go to PROCESSING only
+                return newStatus == OrderStatus.PROCESSING;
+
+            case PROCESSING:
+                // From PROCESSING, can go to COMPLETED only
+                return newStatus == OrderStatus.COMPLETED;
+
+            case COMPLETED:
+                // COMPLETED orders cannot be changed (final state)
+                return false;
+
+            default:
+                return false;
+        }
     }
 
 

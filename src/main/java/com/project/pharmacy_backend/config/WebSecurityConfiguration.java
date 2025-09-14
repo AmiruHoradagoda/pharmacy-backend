@@ -37,6 +37,10 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 // Auth endpoints
                 .antMatchers("/api/v1/auth/**").permitAll()
 
+                // Swagger UI endpoints
+                .antMatchers("/swagger-ui.html", "/swagger-resources/**", "/v2/api-docs", "/webjars/**").permitAll() // Permit all users to access Swagger UI
+                .antMatchers(HttpHeaders.ALLOW).permitAll()
+
                 // Public item endpoints
                 .antMatchers(HttpMethod.GET, "/api/v1/item/item-list", "/api/v1/item/by-id/**").permitAll()
 
@@ -45,9 +49,14 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.PUT, "/api/v1/item/**").hasRole("Admin")
                 .antMatchers(HttpMethod.DELETE, "/api/v1/item/**").hasRole("Admin")
 
+                .antMatchers(HttpMethod.GET, "/api/v1/user/**").hasRole("Admin")
+
+                .antMatchers( "/api/v1/dashboard/**").hasRole("Admin")
+
                 // Other endpoints
-                .antMatchers("/api/v1/user/getCustomers").permitAll()
-                .antMatchers("/api/v1/order/getAllOrders").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/v1/order/**").authenticated()
+                .antMatchers(HttpMethod.PUT,"/api/v1/order/**").hasRole("Admin")
+
 
                 .anyRequest().authenticated()
                 .and()
