@@ -23,9 +23,15 @@ public class OrderController {
     }
 
     @GetMapping("/getAllOrders")
-    public ResponseEntity<StandardResponse> getAllOrders(){
-        OrderPaginateResponseDto dto = orderService.getAllOrders();
-        return new ResponseEntity<StandardResponse>(new StandardResponse(201,"Order is Saved",dto), HttpStatus.CREATED);
+    public ResponseEntity<StandardResponse> getAllOrders(@RequestParam(defaultValue = "0") int page,
+                                                         @RequestParam(defaultValue = "10") int size,
+                                                         @RequestParam(defaultValue = "orderId") String sortBy,
+                                                         @RequestParam(defaultValue = "desc") String sortDirection){
+        OrderPaginateResponseDto dto = orderService.getAllOrders(page, size, sortBy, sortDirection);
+        return new ResponseEntity<StandardResponse>(
+                new StandardResponse(200, "Orders are retrieved", dto),
+                HttpStatus.OK
+        );
     }
 
 }

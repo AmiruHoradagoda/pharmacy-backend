@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -31,17 +32,23 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        System.out.println("=== CONFIGURING SECURITY ===");
-
         http.cors().and().csrf().disable()
                 .authorizeRequests()
+                // Auth endpoints
                 .antMatchers("/api/v1/auth/**").permitAll()
-                .antMatchers("/api/v1/item/item-list", "/api/v1/item/by-id/**").permitAll()
-                .antMatchers("/swagger-ui.html", "/swagger-resources/**", "/v2/api-docs", "/webjars/**").permitAll()
-                .antMatchers(HttpHeaders.ALLOW).permitAll()
-                .antMatchers("/api/v1/admin/**").hasRole("Admin")
-                .antMatchers("/api/v1/item/save").hasRole("Admin")
-                .antMatchers("/api/v1/customer/**", "/api/v1/order/save").hasRole("Customer")
+
+                // Public item endpoints
+                .antMatchers(HttpMethod.GET, "/api/v1/item/item-list", "/api/v1/item/by-id/**").permitAll()
+
+                // Admin only endpoints
+                .antMatchers(HttpMethod.POST, "/api/v1/item/save").hasRole("Admin")
+                .antMatchers(HttpMethod.PUT, "/api/v1/item/**").hasRole("Admin")
+                .antMatchers(HttpMethod.DELETE, "/api/v1/item/**").hasRole("Admin")
+
+                // Other endpoints
+                .antMatchers("/api/v1/user/getCustomers").permitAll()
+                .antMatchers("/api/v1/order/getAllOrders").permitAll()
+
                 .anyRequest().authenticated()
                 .and()
                 .exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint)
@@ -49,8 +56,6 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
-
-        System.out.println("=== SECURITY CONFIGURED ===");
     }
 
     @Bean

@@ -11,6 +11,7 @@ public class ItemSaveRequestDTO {
     private String itemName;
     private int stockQuantity;
     private double itemPrice;
+    private boolean activeState;
     private String imageUrl;
 
 }

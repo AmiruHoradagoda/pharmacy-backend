@@ -1,6 +1,9 @@
 package com.project.pharmacy_backend.service.impl;
 
 import com.project.pharmacy_backend.dto.UserDTO;
+import com.project.pharmacy_backend.dto.response.RoleDto;
+import com.project.pharmacy_backend.dto.response.UserGetResponseDto;
+import com.project.pharmacy_backend.dto.response.pagination.UserPaginationResponseDto;
 import com.project.pharmacy_backend.entity.Role;
 import com.project.pharmacy_backend.entity.User;
 import com.project.pharmacy_backend.repo.RoleRepo;
@@ -8,11 +11,17 @@ import com.project.pharmacy_backend.repo.UserRepo;
 import com.project.pharmacy_backend.service.UserService;
 import com.project.pharmacy_backend.util.mappers.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -55,6 +64,7 @@ public class UserServiceIMPL implements UserService {
             userRepo.save(customer);
         }
     }
+
     @Transactional
     public void initAdminRoleAndAdmin() {
         if (!roleRepo.existsById("Admin")) {
@@ -83,7 +93,6 @@ public class UserServiceIMPL implements UserService {
         }
     }
 
-
     @Override
     @Transactional
     public String registerUser(UserDTO userDTO) {
@@ -111,4 +120,52 @@ public class UserServiceIMPL implements UserService {
         user.setRole(roles);
     }
 
+
+    @Override
+    public UserPaginationResponseDto getAllCustomers(int page, int size, String sortBy, String sortDirection) {
+        Sort.Direction direction = sortDirection.equalsIgnoreCase("desc")
+                ? Sort.Direction.DESC
+                : Sort.Direction.ASC;
+
+        Sort sort = Sort.by(direction, sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        // Fixed: Use the correct repository method
+        Page<User> userPage = userRepo.findAllCustomers("Customer", pageable);
+
+        // Convert User entities to UserGetResponseDto
+        List<UserGetResponseDto> userGetResponseDtoList = new ArrayList<>();
+
+        for (User user : userPage.getContent()) {
+            // Handle Set<Role> - get the first role or create a combined role representation
+            RoleDto roleDto = null;
+
+            if (user.getRole() != null && !user.getRole().isEmpty()) {
+                // Option 1: Get the first role from the set
+                Role firstRole = user.getRole().iterator().next();
+                roleDto = RoleDto.builder()
+                        .roleName(firstRole.getRoleName())
+                        .roleDescription(firstRole.getRoleDescription())
+                        .build();
+            }
+
+            // Create UserGetResponseDto
+            UserGetResponseDto userGetResponseDto = UserGetResponseDto.builder()
+                    .userId(user.getUserId())
+                    .email(user.getEmail())
+                    .firstName(user.getFirstName())
+                    .lastName(user.getLastName())
+                    .phoneNumber(user.getPhoneNumber())
+                    .role(roleDto)
+                    .build();
+
+            userGetResponseDtoList.add(userGetResponseDto);
+        }
+
+        // Create and return UserPaginationResponseDto with complete pagination info
+        return UserPaginationResponseDto.builder()
+                .dataList(userGetResponseDtoList)
+                .dataCount(userPage.getTotalElements())
+                .build();
+    }
 }

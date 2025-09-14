@@ -11,6 +11,10 @@ import com.project.pharmacy_backend.service.OrderService;
 import com.project.pharmacy_backend.util.enums.OrderStatus;
 import com.project.pharmacy_backend.util.mappers.ShippingMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -45,7 +49,8 @@ public class OrderServiceIMPL implements OrderService {
     public String addOrder(RequestOrderSaveDTO requestOrderSaveDTO) {
         // Retrieve customer entity from the repository
         User customer = customerRepo.findByEmail(requestOrderSaveDTO.getCustomer())
-                .orElseThrow(() -> new RuntimeException("Customer not found with email: " + requestOrderSaveDTO.getCustomer()));        ShippingAddress shippingAddress = shippingMapper.shippingAddressDtoToShippingEntity(requestOrderSaveDTO.getRequestShippingAddressSave());
+                .orElseThrow(() -> new RuntimeException("Customer not found with email: " + requestOrderSaveDTO.getCustomer()));
+        ShippingAddress shippingAddress = shippingMapper.shippingAddressDtoToShippingEntity(requestOrderSaveDTO.getRequestShippingAddressSave());
         shippingRepo.save(shippingAddress);
 
         // Create the order entity
@@ -84,14 +89,25 @@ public class OrderServiceIMPL implements OrderService {
     }
 
     @Override
-    public OrderPaginateResponseDto getAllOrders() {
-        // Retrieve all orders from the repository
-        List<Order> orderList = orderRepo.findAll();
+    public OrderPaginateResponseDto getAllOrders(int page, int size, String sortBy, String sortDirection) {
+        // Create sort direction
+        Sort.Direction direction = sortDirection.equalsIgnoreCase("desc")
+                ? Sort.Direction.DESC
+                : Sort.Direction.ASC;
+
+        // Create sort object
+        Sort sort = Sort.by(direction, sortBy);
+
+        // Create pageable object
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        // Get paginated results
+        Page<Order> orderPage = orderRepo.findAll(pageable);
 
         // Convert Order entities to OrderGetResponseDto
         List<OrderGetResponseDto> orderGetResponseDtoList = new ArrayList<>();
 
-        for (Order order : orderList) {
+        for (Order order : orderPage.getContent()) {
             // Create UserGetResponseDto for customer
             UserGetResponseDto customerDto = UserGetResponseDto.builder()
                     .userId(order.getCustomer().getUserId())
@@ -113,10 +129,10 @@ public class OrderServiceIMPL implements OrderService {
             orderGetResponseDtoList.add(orderGetResponseDto);
         }
 
-        // Create and return OrderPaginateResponseDto
+        // Create and return OrderPaginateResponseDto with pagination info
         return OrderPaginateResponseDto.builder()
                 .dataList(orderGetResponseDtoList)
-                .dataCount(orderGetResponseDtoList.size())
+                .dataCount(orderPage.getTotalElements())
                 .build();
     }
 

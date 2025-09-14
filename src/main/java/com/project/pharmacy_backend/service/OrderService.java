@@ -7,5 +7,6 @@ import com.project.pharmacy_backend.dto.response.pagination.OrderPaginateRespons
 public interface OrderService {
     String addOrder(RequestOrderSaveDTO requestOrderSaveDTO);
 
-    OrderPaginateResponseDto getAllOrders();
+    OrderPaginateResponseDto getAllOrders(int page, int size, String sortBy, String sortDirection);
+
 }

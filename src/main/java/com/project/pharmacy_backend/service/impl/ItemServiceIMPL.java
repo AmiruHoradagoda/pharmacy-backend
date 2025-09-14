@@ -2,11 +2,16 @@ package com.project.pharmacy_backend.service.impl;
 
 import com.project.pharmacy_backend.dto.request.ItemSaveRequestDTO;
 import com.project.pharmacy_backend.dto.response.ItemGetRequestDTO;
+import com.project.pharmacy_backend.dto.response.pagination.ItemPaginationResponseDto;
 import com.project.pharmacy_backend.entity.Item;
 import com.project.pharmacy_backend.repo.ItemRepo;
 import com.project.pharmacy_backend.service.ItemService;
 import com.project.pharmacy_backend.util.mappers.ItemMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,6 +31,7 @@ public class ItemServiceIMPL implements ItemService {
         addItemIfNotExists("Piriton", 180, 40, "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.pillsorted.com%2Fproduct%2Fpiriton-allergy-tablets-60%2F&psig=AOvVaw21YN4LonI5uHc6jOk9yzfI&ust=1738860919240000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCICD3e7_rIsDFQAAAAAdAAAAABAp");
         addItemIfNotExists("Amoxicillin", 120, 100, "https://www.google.com/url?sa=i&url=https%3A%2F%2Fspmc.gov.lk%2Fproducts%2Fbeta-lactam%2Famoxiciilin-capsules-bp-500mg-blister-&psig=AOvVaw3NK3iwJPjteXoYIexjzrWK&ust=1738860735606000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCODg7pX_rIsDFQAAAAAdAAAAABAE");
     }
+
     private void addItemIfNotExists(String itemName, int stockQuantity, double itemPrice, String imageUrl) {
         if (!itemRepo.existsByItemName(itemName)) {
             Item item = new Item();
@@ -45,13 +51,31 @@ public class ItemServiceIMPL implements ItemService {
         return itemSaveRequestDTO.getItemName() + "Insert Successfully";
     }
 
-
-
     @Override
-    public List<ItemGetRequestDTO> getAllItems() {
-        List<Item>itemList = itemRepo.findAll();
-        List<ItemGetRequestDTO>itemListDto =itemMapper.toItemListDto(itemList);
-        return itemListDto;
+    public ItemPaginationResponseDto getAllItems(int page, int size, String sortBy, String sortDirection) {
+        // Create sort direction
+        Sort.Direction direction = sortDirection.equalsIgnoreCase("desc")
+                ? Sort.Direction.DESC
+                : Sort.Direction.ASC;
+
+        // Create sort object
+        Sort sort = Sort.by(direction, sortBy);
+
+        // Create pageable object
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        // Get paginated results
+        Page<Item> itemPage = itemRepo.findAll(pageable);
+
+        // Convert to DTOs
+        List<ItemGetRequestDTO> itemListDto = itemMapper.toItemListDto(itemPage.getContent());
+
+        // Create response
+        ItemPaginationResponseDto response = new ItemPaginationResponseDto();
+        response.setDataList(itemListDto);
+        response.setDataCount(itemPage.getTotalElements());
+
+        return response;
     }
 
     @Override
@@ -60,6 +84,44 @@ public class ItemServiceIMPL implements ItemService {
                 .orElseThrow(() -> new RuntimeException(itemId + " item is not found..."));
 
         return itemMapper.toItemGetDto(item);
+    }
+
+    @Override
+    public String deleteItemById(long itemId) {
+        if (itemRepo.existsById(itemId)) {
+            itemRepo.deleteById(itemId);
+            return "Item with ID " + itemId + " deleted successfully.";
+        } else {
+            return "Item with ID " + itemId + " not found.";
+        }
+    }
+
+    @Override
+    public String editItemById(long itemId, ItemSaveRequestDTO itemSaveRequestDTO) {
+        // Check if item exists
+        Optional<Item> existingItemOptional = itemRepo.findById(itemId);
+
+        if (existingItemOptional.isPresent()) {
+            Item existingItem = existingItemOptional.get();
+
+            // Update the existing item with new data
+            existingItem.setItemName(itemSaveRequestDTO.getItemName());
+            existingItem.setStockQuantity(itemSaveRequestDTO.getStockQuantity());
+            existingItem.setItemPrice(itemSaveRequestDTO.getItemPrice());
+            existingItem.setActiveState(itemSaveRequestDTO.isActiveState());
+
+            // Update image URL only if provided
+            if (itemSaveRequestDTO.getImageUrl() != null && !itemSaveRequestDTO.getImageUrl().trim().isEmpty()) {
+                existingItem.setImageUrl(itemSaveRequestDTO.getImageUrl());
+            }
+
+            // Save the updated item
+            itemRepo.save(existingItem);
+
+            return "Item with ID " + itemId + " updated successfully.";
+        } else {
+            return "Item with ID " + itemId + " not found.";
+        }
     }
 
 
