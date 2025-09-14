@@ -3,9 +3,7 @@ package com.project.pharmacy_backend.entity;
 import javax.persistence.*;
 
 import com.vladmihalcea.hibernate.type.json.JsonType;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 
@@ -15,7 +13,8 @@ import org.hibernate.annotations.TypeDefs;
 })
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 public class OrderItems {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -2,9 +2,7 @@ package com.project.pharmacy_backend.entity;
 
 import com.project.pharmacy_backend.util.enums.OrderStatus;
 import com.vladmihalcea.hibernate.type.json.JsonType;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 
@@ -19,7 +17,8 @@ import java.util.Set;
 })
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 public class Order {
     
     @Id

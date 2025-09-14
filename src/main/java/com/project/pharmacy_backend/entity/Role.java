@@ -1,8 +1,6 @@
 package com.project.pharmacy_backend.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.Set;
@@ -11,7 +9,8 @@ import java.util.Set;
 @Table(name = "roles")
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 public class Role {
 
     @Id

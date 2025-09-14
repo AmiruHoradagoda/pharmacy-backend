@@ -2,10 +2,7 @@ package com.project.pharmacy_backend.service.impl;
 
 import com.project.pharmacy_backend.dto.request.RequestOrderDetailsSave;
 import com.project.pharmacy_backend.dto.request.RequestOrderSaveDTO;
-import com.project.pharmacy_backend.dto.response.AnnualSalesResponse;
-import com.project.pharmacy_backend.dto.response.MonthlySalesDto;
-import com.project.pharmacy_backend.dto.response.OrderGetResponseDto;
-import com.project.pharmacy_backend.dto.response.UserGetResponseDto;
+import com.project.pharmacy_backend.dto.response.*;
 import com.project.pharmacy_backend.dto.response.pagination.OrderPaginateResponseDto;
 import com.project.pharmacy_backend.entity.*;
 import com.project.pharmacy_backend.repo.*;
@@ -186,6 +183,32 @@ public class OrderServiceIMPL implements OrderService {
                     .phoneNumber(order.getCustomer().getPhoneNumber())
                     .build();
 
+            // Create OrderItemGetDto list for order items
+            List<OrderItemGetDto> orderItemDtos = new ArrayList<>();
+            if (order.getOrderItems() != null && !order.getOrderItems().isEmpty()) {
+                for (OrderItems orderItem : order.getOrderItems()) {
+                    OrderItemGetDto orderItemDto = OrderItemGetDto.builder()
+                            .orderItemsID(orderItem.getOrderItemsID()) // Assuming you have this field
+                            .itemName(orderItem.getItemName())
+                            .quantity(orderItem.getQuantity())
+                            .amount(orderItem.getAmount())
+                            .itemId(orderItem.getItems() != null ? orderItem.getItems().getItemId() : null)
+                            .build();
+                    orderItemDtos.add(orderItemDto);
+                }
+            }
+
+            // Create ShippingAddressGetDto for shipping address
+            ShippingAddressGetDto shippingAddressDto = null;
+            if (order.getShippingAddress() != null) {
+                shippingAddressDto = ShippingAddressGetDto.builder()
+                        .shipping_id(order.getShippingAddress().getShipping_id())
+                        .address(order.getShippingAddress().getAddress())
+                        .city(order.getShippingAddress().getCity())
+                        .postalCode(order.getShippingAddress().getPostalCode())
+                        .build();
+            }
+
             // Create and return OrderGetResponseDto
             return OrderGetResponseDto.builder()
                     .orderId(order.getOrderId())
@@ -193,6 +216,8 @@ public class OrderServiceIMPL implements OrderService {
                     .orderDate(order.getOrderDate())
                     .status(order.getStatus())
                     .totalAmount(order.getTotalAmount())
+                    .orderItems(orderItemDtos)
+                    .shippingAddress(shippingAddressDto)
                     .build();
 
         } catch (RuntimeException e) {
